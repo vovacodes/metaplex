@@ -26,18 +26,63 @@ export default class MetaplexDocument extends Document {
             type="image/png"
             sizes="32x32"
             href="/favicon-32x32.png"
+            media="(prefers-color-scheme:no-preference)"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="96x96"
             href="/favicon-96x96.png"
+            media="(prefers-color-scheme:no-preference)"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="16x16"
             href="/favicon-16x16.png"
+            media="(prefers-color-scheme:no-preference)"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+            media="(prefers-color-scheme:light)"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="96x96"
+            href="/favicon-96x96.png"
+            media="(prefers-color-scheme:light)"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+            media="(prefers-color-scheme:light)"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-dark-32x32.png"
+            media="(prefers-color-scheme:dark)"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="96x96"
+            href="/favicon-dark-96x96.png"
+            media="(prefers-color-scheme:dark)"
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-dark-16x16.png"
+            media="(prefers-color-scheme:dark)"
           />
           <meta name="theme-color" content="#000000" />
           <meta name="description" content="Metaplex NFT Marketplace" />

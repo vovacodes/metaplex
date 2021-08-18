@@ -8,6 +8,16 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Mono&display=swap"
+          rel="stylesheet"
+        />
         <title>NFTIKI - NFT Marketplace</title>
       </Head>
       {typeof window === 'undefined' ? null : <Component {...pageProps} />}
