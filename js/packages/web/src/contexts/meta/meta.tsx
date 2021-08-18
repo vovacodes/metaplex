@@ -21,8 +21,15 @@ import { processAuctions } from './processAuctions';
 import { processMetaplexAccounts } from './processMetaplexAccounts';
 import { processMetaData } from './processMetaData';
 import { processVaultData } from './processVaultData';
-import { loadAccounts, makeSetter, metadataByMintUpdater } from './loadAccounts';
+import {
+  loadAccounts,
+  makeSetter,
+  metadataByMintUpdater,
+} from './loadAccounts';
 import { onChangeAccount } from './onChangeAccount';
+import { getHandleAndRegistryKey } from '@solana/spl-name-service';
+import { PublicKey } from '@solana/web3.js';
+import produce from 'immer';
 
 const MetaContext = React.createContext<MetaContextState>({
   metadata: [],
@@ -45,6 +52,7 @@ const MetaContext = React.createContext<MetaContextState>({
   bidderPotsByAuctionAndBidder: {},
   bidRedemptions: {},
   whitelistedCreatorsByCreator: {},
+  twitterHandlesByCreator: {},
   payoutTickets: {},
   prizeTrackingTickets: {},
   stores: {},
@@ -72,6 +80,7 @@ export function MetaProvider({ children = null as any }) {
     payoutTickets: {},
     store: null,
     whitelistedCreatorsByCreator: {},
+    twitterHandlesByCreator: {},
     bidderMetadataByAuctionAndBidder: {},
     bidderPotsByAuctionAndBidder: {},
     safetyDepositBoxesByVaultAndIndex: {},
@@ -87,7 +96,10 @@ export function MetaProvider({ children = null as any }) {
     async metadataByMint => {
       try {
         if (!all) {
-          const {metadata, mintToMetadata} = await queryExtendedMetadata(connection, metadataByMint);
+          const { metadata, mintToMetadata } = await queryExtendedMetadata(
+            connection,
+            metadataByMint,
+          );
           setState(current => ({
             ...current,
             metadata,
@@ -122,13 +134,13 @@ export function MetaProvider({ children = null as any }) {
 
   const updateStateValue = useMemo<UpdateStateValueFunc>(
     () => (prop, key, value) => {
-      setState(current => makeSetter({...current})(prop, key, value));
+      setState(current => makeSetter({ ...current })(prop, key, value));
     },
     [setState],
   );
 
-  const store = state.store;
-  const whitelistedCreatorsByCreator = state.whitelistedCreatorsByCreator;
+  const { store, whitelistedCreatorsByCreator, twitterHandlesByCreator } =
+    state;
 
   useEffect(() => {
     if (isLoading) {
@@ -152,14 +164,18 @@ export function MetaProvider({ children = null as any }) {
 
     const metaSubId = connection.onProgramAccountChange(
       toPublicKey(METADATA_PROGRAM_ID),
-      onChangeAccount(processMetaData, async (prop, key, value) => {
-        if (prop === 'metadataByMint') {
-          const nextState = await metadataByMintUpdater(value, state, all);
-          setState(nextState);
-        } else {
-          updateStateValue(prop, key, value);
-        }
-      }, all),
+      onChangeAccount(
+        processMetaData,
+        async (prop, key, value) => {
+          if (prop === 'metadataByMint') {
+            const nextState = await metadataByMintUpdater(value, state, all);
+            setState(nextState);
+          } else {
+            updateStateValue(prop, key, value);
+          }
+        },
+        all,
+      ),
     );
 
     return () => {
@@ -177,33 +193,41 @@ export function MetaProvider({ children = null as any }) {
     isLoading,
   ]);
 
-  // TODO: fetch names dynamically
-  // TODO: get names for creators
-  // useEffect(() => {
-  //   (async () => {
-  //     const twitterHandles = await connection.getProgramAccounts(NAME_PROGRAM_ID, {
-  //      filters: [
-  //        {
-  //           dataSize: TWITTER_ACCOUNT_LENGTH,
-  //        },
-  //        {
-  //          memcmp: {
-  //           offset: VERIFICATION_AUTHORITY_OFFSET,
-  //           bytes: TWITTER_VERIFICATION_AUTHORITY.toBase58()
-  //          }
-  //        }
-  //      ]
-  //     });
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const creatorsToResolve = Object.keys(
+        whitelistedCreatorsByCreator,
+      ).filter(creator => !twitterHandlesByCreator.hasOwnProperty(creator));
 
-  //     const handles = twitterHandles.map(t => {
-  //       const owner = new PublicKey(t.account.data.slice(32, 64));
-  //       const name = t.account.data.slice(96, 114).toString();
-  //     });
+      if (creatorsToResolve.length === 0) return;
 
-  //     console.log(handles);
+      const entries = await Promise.all(
+        creatorsToResolve.map(creatorAddr =>
+          getHandleAndRegistryKey(connection, new PublicKey(creatorAddr)).then(
+            ([handle]) => [creatorAddr, '@' + handle] as const,
+            _err => [creatorAddr, null] as const,
+          ),
+        ),
+      );
 
-  //   })();
-  // }, [whitelistedCreatorsByCreator]);
+      if (!active) return;
+
+      setState(prevState => {
+        return produce(prevState, draft => {
+          for (const [creator, handle] of entries) {
+            draft.twitterHandlesByCreator[creator] = handle;
+            draft.whitelistedCreatorsByCreator[creator].info.twitter =
+              handle ?? undefined;
+          }
+        });
+      });
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [whitelistedCreatorsByCreator, twitterHandlesByCreator, setState]);
 
   return (
     <MetaContext.Provider
@@ -221,4 +245,3 @@ export const useMeta = () => {
   const context = useContext(MetaContext);
   return context;
 };
-

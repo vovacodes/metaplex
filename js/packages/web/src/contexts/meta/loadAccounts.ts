@@ -102,6 +102,7 @@ export const loadAccounts = async (connection: Connection, all: boolean) => {
     payoutTickets: {},
     store: null,
     whitelistedCreatorsByCreator: {},
+    twitterHandlesByCreator: {},
     bidderMetadataByAuctionAndBidder: {},
     bidderPotsByAuctionAndBidder: {},
     safetyDepositBoxesByVaultAndIndex: {},

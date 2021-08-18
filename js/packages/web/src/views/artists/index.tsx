@@ -8,7 +8,7 @@ import { useMeta } from '../../contexts';
 const { Content } = Layout;
 
 export const ArtistsView = () => {
-  const { whitelistedCreatorsByCreator } = useMeta();
+  const { whitelistedCreatorsByCreator, twitterHandlesByCreator } = useMeta();
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -26,14 +26,20 @@ export const ArtistsView = () => {
     >
       {items.map((m, idx) => {
         const id = m.info.address;
+
+        const twitterHandle = m.info.twitter;
+
         return (
           <Link to={`/artists/${id}`} key={idx}>
-            <ArtistCard key={id} artist={{
-              address: m.info.address,
-              name: m.info.name || '',
-              image: m.info.image || '',
-              link: m.info.twitter || ''
-            }} />
+            <ArtistCard
+              key={id}
+              artist={{
+                address: m.info.address,
+                name: m.info.name || twitterHandle || '',
+                image: m.info.image || '',
+                link: m.info.twitter || '',
+              }}
+            />
           </Link>
         );
       })}
@@ -43,9 +49,7 @@ export const ArtistsView = () => {
   return (
     <Layout style={{ margin: 0, marginTop: 30 }}>
       <Content style={{ display: 'flex', flexWrap: 'wrap' }}>
-        <Col style={{ width: '100%', marginTop: 10 }}>
-          {artistGrid}
-        </Col>
+        <Col style={{ width: '100%', marginTop: 10 }}>{artistGrid}</Col>
       </Content>
     </Layout>
   );

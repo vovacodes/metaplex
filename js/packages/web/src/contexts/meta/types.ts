@@ -70,6 +70,7 @@ export interface MetaState {
     string,
     ParsedAccount<WhitelistedCreator>
   >;
+  twitterHandlesByCreator: Record<string, string | null>; // `null` signifies: handle couldn't be resolved.
   payoutTickets: Record<string, ParsedAccount<PayoutTicket>>;
   stores: Record<string, ParsedAccount<Store>>;
 }

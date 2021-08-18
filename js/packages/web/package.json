@@ -25,6 +25,7 @@
     "canvas-confetti": "^1.4.0",
     "chart.js": "^3.5.0",
     "eventemitter3": "^4.0.7",
+    "immer": "^9.0.5",
     "less": "^4.1.1",
     "less-loader": "^10.0.1",
     "lodash": "^4.17.20",
