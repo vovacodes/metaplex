@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=DM+Mono&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Inter:wght@400;700&display=swap"
           rel="stylesheet"
         />
         <title>NFTIKI - NFT Marketplace</title>
